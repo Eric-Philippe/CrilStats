@@ -1,5 +1,4 @@
 import { Page } from "puppeteer";
-import fs from "fs";
 
 import ResacrilSession from "../ResacrilSession";
 import Slot from "../SlotScrapped";
@@ -127,16 +126,5 @@ export default class SlotsFetcher {
     });
 
     return dates;
-  }
-
-  /**
-   * Save the slots to a JSON file
-   * @param slots - Array of Slot objects
-   * @param filename - Name of the file
-   */
-  static saveSlotsToJson(slots: Slot[], filename: string): void {
-    if (!filename.endsWith(".json")) filename += ".json";
-    const data = JSON.stringify(slots, null, 2);
-    fs.writeFileSync(filename, data);
   }
 }

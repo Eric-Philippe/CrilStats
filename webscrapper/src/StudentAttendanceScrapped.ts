@@ -7,27 +7,7 @@ import {
   strToDpt,
   strToPresence,
 } from "./models/StudentAttendance";
-
-/**
- * List of departments
- * @description List of departments to help convert the department string to the StudentAttendanceDpt enum
- */
-const DEPARTMENTS = [
-  ["GEA RANGUEIL", "GEAR"],
-  ["GEA PONSAN", "GEAP"],
-  ["CHIMIE"],
-  ["GCCD"],
-  ["GCGP"],
-  ["GEII"],
-  ["GMP"],
-  ["INFOCOM"],
-  ["INFORMATIQUE", "INFO"],
-  ["MMI"],
-  ["MP"],
-  ["PEC"],
-  ["TC TOULOUSE", "TCT"],
-  ["TC", "TCC"],
-];
+import { DEPARTMENTS } from "./Utils";
 
 /**
  * @class StudentAttendance class

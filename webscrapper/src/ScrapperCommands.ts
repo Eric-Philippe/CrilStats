@@ -1,6 +1,10 @@
+import { CsvSaver } from "./Saver/CsvSaver";
+import { JsonSaver } from "./Saver/JsonSaver";
+import { PgsqlSaver } from "./Saver/PgsqlSaver";
 import AttendanceFetcher from "./Scrapper/AttendanceFetcher";
 import SlotsFetcher from "./Scrapper/SlotsFetcher";
 import Slot from "./SlotScrapped";
+import StudentAttendance from "./StudentAttendanceScrapped";
 import { jsonReaderSlots, jsonReaderStudents } from "./Utils";
 import { SlotLangue } from "./models/Slot";
 
@@ -27,7 +31,7 @@ export default class ScrapperCommands {
    * @param filename - The name of the file
    */
   static async saveSlotsToJson(slots: Slot[], filename: string) {
-    SlotsFetcher.saveSlotsToJson(slots, filename);
+    JsonSaver.saveSlotsToJson(slots, filename);
   }
 
   /**
@@ -75,7 +79,7 @@ export default class ScrapperCommands {
    * @param filename  - The name of the file
    */
   static async saveStudentsToJson(students: any[], filename: string) {
-    AttendanceFetcher.saveStudentsToJson(students, filename);
+    JsonSaver.saveStudentsToJson(students, filename);
   }
 
   /**
@@ -85,5 +89,49 @@ export default class ScrapperCommands {
    */
   static async jsonReaderStudents(filename: string) {
     return await jsonReaderStudents(filename);
+  }
+
+  /**
+   * Save slots to a CSV file
+   * @param slots - An array of Slot objects
+   * @param filename - The name of the file
+   */
+  static async saveSlotsToCsv(slots: Slot[]) {
+    const saver = new CsvSaver("../csv");
+    await saver.initializeFilesSlot();
+    await saver.saveSlots(slots);
+  }
+
+  /**
+   * Save slots to a CSV file
+   * @param students - An array of Students objects
+   * @param filename - The name of the file
+   */
+  static async saveStudentsToCsv(students: StudentAttendance[]) {
+    const saver = new CsvSaver("../csv");
+    await saver.initializeFilesStudent();
+    await saver.saveStudents(students);
+  }
+
+  /**
+   * Save slots and students attendance marged to a CSV file
+   * @param slots - An array of Slot objects
+   * @param students - An array of StudentAttendance objects
+   */
+  static async saveSlotsAndStudentsToCsv(
+    slots: Slot[],
+    students: StudentAttendance[]
+  ) {
+    const saver = new CsvSaver("../csv");
+    await saver.initializeMergedFile();
+    await saver.saveMergedData(slots, students);
+  }
+
+  /**
+   * Save students attendance and slots to a database
+   * @param students - An array of StudentAttendance objects
+   */
+  static async saveToDb(slots: Slot[], students: StudentAttendance[]) {
+    await PgsqlSaver.saveToBd(slots, students);
   }
 }

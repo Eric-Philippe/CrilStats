@@ -1,3 +1,7 @@
+/**
+ * Utility class to encode and decode base64 strings
+ * @class Base64Utils
+ */
 export default class Base64Utils {
   /**
    * Decode a base64 string

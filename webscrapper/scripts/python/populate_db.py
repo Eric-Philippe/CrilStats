@@ -1,52 +1,7 @@
+# -*- coding: utf-8 -*-
 import json
 import psycopg2
 from psycopg2 import sql
-
-"""
-CREATE TABLE Slot(
-   id VARCHAR(50) PRIMARY KEY,
-   title VARCHAR(255),
-   start_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-   end_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-   type SMALLINT NOT NULL,
-   langue VARCHAR(125),
-   niveau SMALLINT,
-   dist BOOLEAN,
-   lieu VARCHAR(255),
-   seats INT,
-   hidden BOOLEAN
-);
-
-CREATE TABLE Student(
-   id VARCHAR(50) PRIMARY KEY,
-   nom VARCHAR(255) NOT NULL,
-   prenom VARCHAR(255),
-   annee VARCHAR(2),
-   dpt VARCHAR(155),
-   observations TEXT
-);
-
-CREATE TABLE Register(
-   id VARCHAR(50),
-   id_1 VARCHAR(50),
-   presence VARCHAR(155),
-   PRIMARY KEY(id, id_1),
-   FOREIGN KEY(id) REFERENCES Slot(id),
-   FOREIGN KEY(id_1) REFERENCES Student(id)
-);
-
-students.json:
-  {
-    "nom": "Allasia",
-    "prenom": "Levi",
-    "userId": "47336",
-    "annee": "1A",
-    "dpt": "INFORMATIQUE",
-    "observation": "Excellent en coaching!",
-    "presence": "Validé",
-    "activiteid": "11444"
-  },
-"""
 
 # Configuration de la base de données
 DB_USERNAME = 'postgres'
@@ -56,10 +11,10 @@ DB_PORT = '5432'
 DB_HOST = 'localhost'
 
 # Charger les données JSON
-with open('events.json', 'r') as f:
+with open('../events.json', 'r', encoding='utf-8') as f:
     events = json.load(f)
 
-with open('students.json', 'r') as f:
+with open('../students.json', 'r', encoding='utf-8') as f:
     students = json.load(f)
 
 # Connexion à la base de données PostgreSQL
@@ -70,13 +25,34 @@ conn = psycopg2.connect(
     host=DB_HOST,
     port=DB_PORT
 )
+
+# Empty the tables
+
 cursor = conn.cursor()
+
+cursor.execute('DELETE FROM Register')
+cursor.execute('DELETE FROM Student')
+cursor.execute('DELETE FROM Slot')
 
 # Insérer les données dans la table Slot
 for event in events:
+    eventType = "Other"
+    if event['type'] == 1:
+        eventType = "Activité"
+    elif event['type'] == 5:
+        eventType = "Coaching"
+        
+    eventLevel = "Tous niveaux"
+    if event['niveau'] == 1:
+        eventLevel = "Débutant"
+    elif event['niveau'] == 2:
+        eventLevel = "Intermédiaire"
+    elif event['niveau'] == 3:
+        eventLevel = "Avancé"
+        
     cursor.execute('''
-        INSERT INTO Slot (id, title, start_date, end_date, type, langue, niveau, dist, lieu, seats, hidden)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO Slot (id, title, start_date, end_date, type, langue, niveau, dist, lieu, seats, insc, hidden)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ON CONFLICT (id) DO UPDATE SET
             title = EXCLUDED.title,
             start_date = EXCLUDED.start_date,
@@ -87,18 +63,20 @@ for event in events:
             dist = EXCLUDED.dist,
             lieu = EXCLUDED.lieu,
             seats = EXCLUDED.seats,
+            insc = EXCLUDED.insc,
             hidden = EXCLUDED.hidden
     ''', (
         event['id'],
         event['title'],
         event['start'],
         event['end'],
-        event['type'],
+        eventType,
         event['langue'],
-        event['niveau'],
+        eventLevel,
         event['dist'],
         event['lieu'],
         event['quota']['seats'],
+        event['quota']['insc'],
         event['hidden']
     ))
 
@@ -124,9 +102,9 @@ for student in students:
     )
     
     cursor.execute('''
-                     INSERT INTO Register (id, id_1, presence)
+                     INSERT INTO Register (activiteid, userId, presence)
                      VALUES (%s, %s, %s)
-                        ON CONFLICT (id, id_1) DO UPDATE SET
+                        ON CONFLICT (activiteid, userId) DO UPDATE SET
                               presence = EXCLUDED.presence
                      ''',
                      (
@@ -142,3 +120,5 @@ conn.commit()
 # Fermer la connexion
 cursor.close()
 conn.close()
+
+print('Database populated successfully!')

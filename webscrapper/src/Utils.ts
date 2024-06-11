@@ -14,6 +14,7 @@ import {
   strToDpt,
   strToPresence,
 } from "./models/StudentAttendance";
+import StudentAttendance from "./StudentAttendanceScrapped";
 
 /** ========================================================= */
 /** ====================== @JSONSlotType =================== */
@@ -39,9 +40,7 @@ export type JSONSlotType = {
  * @param filename the filename to read
  * @returns a SlotType array
  */
-export const jsonReaderSlots = async (
-  filename: string
-): Promise<SlotType[]> => {
+export const jsonReaderSlots = async (filename: string): Promise<Slot[]> => {
   if (!filename.endsWith(".json")) filename += ".json";
   if (!fs.existsSync(filename))
     throw new Error(
@@ -70,7 +69,9 @@ export const jsonReaderSlots = async (
     };
   });
 
-  return slots;
+  const slotsObj = slots.map((slot) => new Slot(slot));
+
+  return slotsObj;
 };
 
 /** ======================================================================= */
@@ -89,7 +90,7 @@ export type JSONStudentAttendanceType = {
 
 export const jsonReaderStudents = async (
   filename: string
-): Promise<StudentAttendanceType[]> => {
+): Promise<StudentAttendance[]> => {
   if (!filename.endsWith(".json")) filename += ".json";
   if (!fs.existsSync(filename)) {
     throw new Error(
@@ -114,5 +115,24 @@ export const jsonReaderStudents = async (
     };
   });
 
-  return students;
+  const studentsObj = students.map((student) => new StudentAttendance(student));
+
+  return studentsObj;
 };
+
+export const DEPARTMENTS = [
+  ["GEA RANGUEIL", "GEAR"],
+  ["GEA PONSAN", "GEAP"],
+  ["CHIMIE"],
+  ["GCCD"],
+  ["GCGP"],
+  ["GEII"],
+  ["GMP"],
+  ["INFOCOM"],
+  ["INFORMATIQUE", "INFO"],
+  ["MMI"],
+  ["MP"],
+  ["PEC"],
+  ["TC TOULOUSE", "TCT"],
+  ["TC", "TCC"],
+];

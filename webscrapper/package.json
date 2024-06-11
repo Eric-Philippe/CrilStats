@@ -14,8 +14,10 @@
   "dependencies": {
     "@types/puppeteer": "^7.0.4",
     "cors": "^2.8.5",
+    "csv-stringify": "^6.5.0",
     "dotenv": "^16.4.5",
     "fs": "^0.0.1-security",
+    "pg": "^8.12.0",
     "puppeteer": "^22.6.1"
   },
   "devDependencies": {

@@ -1,5 +1,4 @@
 import { Page } from "puppeteer";
-import fs from "fs";
 
 import ResacrilSession from "../ResacrilSession";
 import StudentAttendance from "../StudentAttendanceScrapped";
@@ -113,19 +112,5 @@ export default class AttendanceFetcher {
     students = students.filter((student) => student !== null);
 
     return students as StudentAttendance[];
-  }
-
-  /**
-   * Save the attendances to a JSON file
-   * @param attendances - Array of Attendances objects
-   * @param filename - Name of the file
-   */
-  static saveStudentsToJson(
-    attendances: StudentAttendance[],
-    filename: string
-  ): void {
-    if (!filename.endsWith(".json")) filename += ".json";
-    const data = JSON.stringify(attendances, null, 2);
-    fs.writeFileSync(filename, data);
   }
 }

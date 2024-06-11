@@ -1,6 +1,18 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+const DATA_ORIGIN = process.env.DATA_ORIGIN as string;
+const SAVE_DATA = process.env.SAVE_DATA as string;
+
+enum SaveChoice {
+  JSON = "1",
+  CSV = "2",
+  DB = "3",
+}
+
+const DEFAULT_EVENT_FILE = "../events";
+const DEFAULT_STUDENT_FILE = "../students";
+
 import ScrapperCommands from "./ScrapperCommands";
 /**
  * @file run.ts
@@ -48,15 +60,50 @@ import ScrapperCommands from "./ScrapperCommands";
  * ```
  */
 (async () => {
+  // Start timer
+  const start = Date.now();
   try {
-    const SLOTS = await ScrapperCommands.fetchAllSlots();
-    ScrapperCommands.saveSlotsToJson(SLOTS, "events");
-    console.log(SLOTS.length);
+    let SLOTS, STUDENTS;
 
-    const setDate = ScrapperCommands.getSetDate(SLOTS);
+    if (DATA_ORIGIN === undefined || DATA_ORIGIN === "0") {
+      SLOTS = await ScrapperCommands.fetchAllSlots();
+      const setDate = ScrapperCommands.getSetDate(SLOTS);
+      STUDENTS = await ScrapperCommands.fetchAllStudentsAttendance(setDate);
+    } else {
+      SLOTS = await ScrapperCommands.jsonReaderSlots(DEFAULT_EVENT_FILE);
+      STUDENTS = await ScrapperCommands.jsonReaderStudents(
+        DEFAULT_STUDENT_FILE
+      );
+    }
 
-    const students = await ScrapperCommands.fetchAllStudentsAttendance(setDate);
-    ScrapperCommands.saveStudentsToJson(students, "students");
+    console.log("Slots: ", `${SLOTS.length} slots fetched`);
+    console.log("Students: ", `${STUDENTS.length} students fetched`);
+
+    if (SAVE_DATA === undefined || SAVE_DATA === SaveChoice.JSON) {
+      console.log("Saving to JSON");
+      await ScrapperCommands.saveSlotsToJson(SLOTS, DEFAULT_EVENT_FILE);
+      await ScrapperCommands.saveStudentsToJson(STUDENTS, DEFAULT_STUDENT_FILE);
+    } else if (SAVE_DATA === SaveChoice.CSV) {
+      console.log("Saving to CSV");
+      await ScrapperCommands.saveSlotsToCsv(SLOTS);
+      await ScrapperCommands.saveStudentsToCsv(STUDENTS);
+      await ScrapperCommands.saveSlotsAndStudentsToCsv(SLOTS, STUDENTS);
+    } else if (SAVE_DATA === SaveChoice.DB) {
+      console.log("Saving to DB");
+      await ScrapperCommands.saveToDb(SLOTS, STUDENTS);
+    } else {
+      console.log(SLOTS);
+      console.log(STUDENTS);
+    }
+
+    console.log("Done");
+
+    var executionTime = Date.now() - start;
+    if (executionTime > 1000)
+      console.log("Execution time: ", executionTime / 1000, "s");
+    else console.log("Execution time: ", executionTime, "ms");
+
+    console.log("Date: ", new Date());
   } catch (error) {
     console.error(error);
   }
