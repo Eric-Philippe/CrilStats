@@ -12,7 +12,7 @@ So, in conclusion the new ultimate goal is to accumulate SQL scripts over time, 
 
 ## Table of Contents
 
-- [Cril-Stats](#cril-stats)
+- [Web-Scrapping for the Cril Reservations website](#web-scrapping-for-the-cril-reservations-website)
   - [Introduction](#introduction)
   - [Table of Contents](#table-of-contents)
   - [Web-Scrapping for the Cril Reservations website](#web-scrapping-for-the-cril-reservations-website)
