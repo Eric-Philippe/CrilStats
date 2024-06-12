@@ -31,11 +31,21 @@ CREATE TABLE Register(
    FOREIGN KEY(st_id) REFERENCES Student(student_id)
 );
 
+CREATE VIEW FILTERED_SLOTS AS (
+    SELECT * FROM Slot
+    WHERE hidden <> true
+    AND langue <> 'AUT'
+);
+
+CREATE VIEW FILTERED_REGISTERS AS (
+    SELECT * FROM Register
+    WHERE presence <> 'Rien'
+);
+
 CREATE VIEW MERGED AS (
     SELECT * FROM Student s
-    INNER JOIN Register r ON s.student_id = r.st_id
-    INNER JOIN Slot sl ON r.sl_id = sl.slot_id
-    AND sl.hidden <> true AND r.presence <> 'Rien'
+    INNER JOIN FILTERED_REGISTER r ON s.student_id = r.st_id
+    INNER JOIN FILTERED_SLOTS sl ON r.sl_id = sl.slot_id
 );
 
 CREATE OR REPLACE PROCEDURE InsertMultipleSlots(
