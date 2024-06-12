@@ -1,5 +1,5 @@
 CREATE TABLE Slot(
-   id VARCHAR(50) PRIMARY KEY,
+   slot_id VARCHAR(50) PRIMARY KEY,
    title VARCHAR(255),
    start_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
    end_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
@@ -8,13 +8,13 @@ CREATE TABLE Slot(
    niveau VARCHAR(125),
    dist BOOLEAN,
    lieu VARCHAR(255),
-   seats INT,
-   insc INT,
-   hidden BOOLEAN
+   seats INT NOT NULL,
+   insc INT NOT NULL, -- Redundant with the Register table, but useful for performance
+   hidden BOOLEAN NOT NULL
 );
 
 CREATE TABLE Student(
-   id VARCHAR(50) PRIMARY KEY,
+   student_id VARCHAR(50) PRIMARY KEY,
    nom VARCHAR(255) NOT NULL,
    prenom VARCHAR(255),
    annee VARCHAR(2),
@@ -23,12 +23,19 @@ CREATE TABLE Student(
 );
 
 CREATE TABLE Register(
-   activiteid VARCHAR(50),
-   userId VARCHAR(50),
-   presence VARCHAR(155),
-   PRIMARY KEY(activiteid, userId),
-   FOREIGN KEY(activiteid) REFERENCES Slot(id),
-   FOREIGN KEY(userId) REFERENCES Student(id)
+   sl_id VARCHAR(50) NOT NULL,
+   st_id VARCHAR(50) NOT NULL,
+   presence VARCHAR(155) NOT NULL,
+   PRIMARY KEY(sl_id, st_id),
+   FOREIGN KEY(sl_id) REFERENCES Slot(slot_id),
+   FOREIGN KEY(st_id) REFERENCES Student(student_id)
+);
+
+CREATE VIEW MERGED AS (
+    SELECT * FROM Student s
+    INNER JOIN Register r ON s.student_id = r.st_id
+    INNER JOIN Slot sl ON r.sl_id = sl.slot_id
+    AND sl.hidden <> true AND r.presence <> 'Rien'
 );
 
 CREATE OR REPLACE PROCEDURE InsertMultipleSlots(
@@ -41,7 +48,7 @@ DECLARE
 BEGIN
     FOREACH slot_record IN ARRAY slot_data
     LOOP
-        INSERT INTO Slot (id, title, start_date, end_date, type, langue, niveau, dist, lieu, seats, insc, hidden)
+        INSERT INTO Slot (slot_id, title, start_date, end_date, type, langue, niveau, dist, lieu, seats, insc, hidden)
         VALUES (slot_record.id, slot_record.title, slot_record.start_date, slot_record.end_date, slot_record.type, slot_record.langue, slot_record.niveau, slot_record.dist, slot_record.lieu, slot_record.seats, slot_record.insc, slot_record.hidden);
     END LOOP;
 END;

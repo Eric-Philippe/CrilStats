@@ -51,9 +51,9 @@ for event in events:
         eventLevel = "Avancé"
         
     cursor.execute('''
-        INSERT INTO Slot (id, title, start_date, end_date, type, langue, niveau, dist, lieu, seats, insc, hidden)
+        INSERT INTO Slot (slot_id, title, start_date, end_date, type, langue, niveau, dist, lieu, seats, insc, hidden)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        ON CONFLICT (id) DO UPDATE SET
+        ON CONFLICT (slot_id) DO UPDATE SET
             title = EXCLUDED.title,
             start_date = EXCLUDED.start_date,
             end_date = EXCLUDED.end_date,
@@ -82,9 +82,9 @@ for event in events:
 
 for student in students:
     cursor.execute('''
-                   INSERT INTO Student (id, nom, prenom, annee, dpt, observations)
+                   INSERT INTO Student (student_id, nom, prenom, annee, dpt, observations)
                    VALUES (%s, %s, %s, %s, %s, %s)
-                     ON CONFLICT (id) DO UPDATE SET
+                     ON CONFLICT (student_id) DO UPDATE SET
                           nom = EXCLUDED.nom,
                           prenom = EXCLUDED.prenom,
                           annee = EXCLUDED.annee,
@@ -102,9 +102,9 @@ for student in students:
     )
     
     cursor.execute('''
-                     INSERT INTO Register (activiteid, userId, presence)
+                     INSERT INTO Register (sl_id, st_id, presence)
                      VALUES (%s, %s, %s)
-                        ON CONFLICT (activiteid, userId) DO UPDATE SET
+                        ON CONFLICT (sl_id, st_id) DO UPDATE SET
                               presence = EXCLUDED.presence
                      ''',
                      (

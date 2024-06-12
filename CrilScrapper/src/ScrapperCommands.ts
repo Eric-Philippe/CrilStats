@@ -31,7 +31,7 @@ export default class ScrapperCommands {
    * @param filename - The name of the file
    */
   static async saveSlotsToJson(slots: Slot[], filename: string) {
-    JsonSaver.saveSlotsToJson(slots, filename);
+    await JsonSaver.saveSlotsToJson(slots, filename);
   }
 
   /**
@@ -79,7 +79,7 @@ export default class ScrapperCommands {
    * @param filename  - The name of the file
    */
   static async saveStudentsToJson(students: any[], filename: string) {
-    JsonSaver.saveStudentsToJson(students, filename);
+    await JsonSaver.saveStudentsToJson(students, filename);
   }
 
   /**
