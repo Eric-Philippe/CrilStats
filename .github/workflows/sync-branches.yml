@@ -1,4 +1,4 @@
-name: Sync Tool Branches
+name: Sync Tool Branches with Main
 
 on:
   push:
