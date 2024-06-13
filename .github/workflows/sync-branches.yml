@@ -24,19 +24,33 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Checkout data-analysis branch and clean up previous contents
           git checkout -B data-analysis
+          git rm -r --ignore-unmatch '*'
+
+          # Copy playbook.ipynb from main branch
           git checkout main -- ./playbook.ipynb
           jupyter nbconvert --to html playbook.ipynb
+
+          # Add and commit playbook files
           git add playbook.ipynb playbook.html
-          git diff-index --quiet HEAD || git commit -m "Update playbook.ipynb and generate HTML from main"
+          git commit -m "Update playbook.ipynb and generate HTML from main"
           git push origin data-analysis --force
 
       - name: Sync CrilScrapper branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Checkout scrapper branch and clean up previous contents
           git checkout -B scrapper
+          git rm -r --ignore-unmatch '*'
+
+          # Copy CrilScrapper contents from main branch
           git checkout main -- ./CrilScrapper
+
+          # Add and commit CrilScrapper files
           git add ./CrilScrapper
-          git diff-index --quiet HEAD || git commit -m "Update CrilScrapper from main"
+          git commit -m "Update CrilScrapper from main"
           git push origin scrapper --force
