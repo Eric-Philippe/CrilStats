@@ -1,0 +1,42 @@
+name: Sync Tool Branches
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v3
+        with:
+          ref: main
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install nbconvert
+
+      - name: Notebook to HTML and Sync to data-analysis branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B data-analysis
+          git checkout main -- ./playbook.ipynb
+          jupyter nbconvert --to html playbook.ipynb
+          git add playbook.ipynb playbook.html
+          git diff-index --quiet HEAD || git commit -m "Update playbook.ipynb and generate HTML from main"
+          git push origin data-analysis --force
+
+      - name: Sync CrilScrapper branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B scrapper
+          git checkout main -- ./CrilScrapper
+          git add ./CrilScrapper
+          git diff-index --quiet HEAD || git commit -m "Update CrilScrapper from main"
+          git push origin scrapper --force
