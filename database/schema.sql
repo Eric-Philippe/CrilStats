@@ -44,7 +44,7 @@ CREATE VIEW FILTERED_REGISTERS AS (
 
 CREATE VIEW MERGED AS (
     SELECT * FROM Student s
-    INNER JOIN FILTERED_REGISTER r ON s.student_id = r.st_id
+    INNER JOIN FILTERED_REGISTERS r ON s.student_id = r.st_id
     INNER JOIN FILTERED_SLOTS sl ON r.sl_id = sl.slot_id
 );
 

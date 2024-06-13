@@ -60,17 +60,25 @@ import ScrapperCommands from "./ScrapperCommands";
  * ```
  */
 (async () => {
+  console.log(`Starting the scrapper...`);
+
   // Start timer
   const start = Date.now();
   try {
     let SLOTS, STUDENTS;
+    console.log("Fetching data from the website");
 
     if (DATA_ORIGIN === undefined || DATA_ORIGIN === "0") {
+      console.log("Fetching slots from the website");
       SLOTS = await ScrapperCommands.fetchAllSlots();
+      console.log("Fetching students attendance from the website");
       const setDate = ScrapperCommands.getSetDate(SLOTS);
       STUDENTS = await ScrapperCommands.fetchAllStudentsAttendance(setDate);
     } else {
+      console.log("Reading data from the JSON files");
+      console.log("Reading slots from the JSON file");
       SLOTS = await ScrapperCommands.jsonReaderSlots(DEFAULT_EVENT_FILE);
+      console.log("Reading students from the JSON file");
       STUDENTS = await ScrapperCommands.jsonReaderStudents(
         DEFAULT_STUDENT_FILE
       );

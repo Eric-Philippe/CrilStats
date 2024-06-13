@@ -1,20 +1,19 @@
 # -*- coding: utf-8 -*-
 import json
 import psycopg2
-from psycopg2 import sql
 
 # Configuration de la base de données
 DB_USERNAME = 'postgres'
 DB_PASSWORD = 'postgres'
 DB_DATABASE = 'crilstats'
 DB_PORT = '5432'
-DB_HOST = 'localhost'
+DB_HOST = 'db'
 
 # Charger les données JSON
-with open('../events.json', 'r', encoding='utf-8') as f:
+with open('temp_slots.json', 'r', encoding='utf-8') as f:
     events = json.load(f)
 
-with open('../students.json', 'r', encoding='utf-8') as f:
+with open('temp_students.json', 'r', encoding='utf-8') as f:
     students = json.load(f)
 
 # Connexion à la base de données PostgreSQL
