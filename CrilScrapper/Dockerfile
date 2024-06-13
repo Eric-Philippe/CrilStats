@@ -41,5 +41,8 @@ RUN npm run build
 # Install psycopg2-binary system-wide
 RUN pip3 install --no-cache-dir --break-system-packages psycopg2-binary
 
+# Install python-dotenv system-wide
+RUN pip3 install --no-cache-dir --break-system-packages python-dotenv
+
 # Run the Node.js application
 CMD ["node", "./dist/run.js"]

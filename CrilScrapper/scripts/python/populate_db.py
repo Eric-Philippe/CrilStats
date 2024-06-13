@@ -1,13 +1,19 @@
 # -*- coding: utf-8 -*-
+import os
 import json
 import psycopg2
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
 
 # Configuration de la base de données
-DB_USERNAME = 'postgres'
-DB_PASSWORD = 'postgres'
-DB_DATABASE = 'crilstats'
-DB_PORT = '5432'
-DB_HOST = 'db'
+DB_USERNAME = os.getenv('DB_USERNAME')
+DB_PASSWORD = os.getenv('DB_PASSWORD')
+DB_DATABASE = os.getenv('DB_DATABASE')
+DB_PORT = os.getenv('DB_PORT')
+DB_HOST = os.getenv('DB_HOST')
 
 # Charger les données JSON
 with open('temp_slots.json', 'r', encoding='utf-8') as f:
