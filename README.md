@@ -1,4 +1,4 @@
-# 💥 CrilStatsFusion-Analysis
+# 💥 CrilStatsFusion-Analitics Solution
 
 ## Introduction
 
