@@ -1,12 +1,15 @@
-# -*- coding: utf-8 -*-
+# ================================================================================================= #
+# ================================================================================================= #
+# This script isn't a standalone script, its only purpose is to be run by the PgsqlSaver.ts/js file #
+# ================================================================================================= #
+# ================================================================================================= #
+
 import os
 import json
 import psycopg2
 from dotenv import load_dotenv
 
 load_dotenv()
-
-
 
 # Configuration de la base de données
 DB_USERNAME = os.getenv('DB_USERNAME')

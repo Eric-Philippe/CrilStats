@@ -1,9 +1,4 @@
-import dotenv from "dotenv";
-dotenv.config();
-
-const DATA_ORIGIN = process.env.DATA_ORIGIN as string;
-const SAVE_DATA = process.env.SAVE_DATA as string;
-
+import { DATA_ORIGIN, SAVE_DATA } from "./env";
 enum SaveChoice {
   JSON = "1",
   CSV = "2",

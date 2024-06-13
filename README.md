@@ -1,51 +1,36 @@
-# CrilStatsFusion-Analysis
+# 💥 CrilStatsFusion-Analysis
 
 ## Introduction
 
-This project aims to retrieve data from the Cril booking website for analysis and in-depth statistical examination. Once all the data is scraped from the webpage, it is transferred to a database for further analysis.
+This project is a complete tool to scrap and analyze the data from the ResaCril booking Website.
+The main idea of this project is to provide a **reuseable** and **scalable** tool to write only one time the analysis, and having the possibilities to run the scrapper whenever we want to update the data and keep the analysis up-to-date.
+The project is divided into 3 parts:
 
-The project includes the initial setup of an Express server to provide basic interfaces for accessing the data and executing scraping commands. However, this server is essentially a precursor to a potential web interface for the project. Due to the complexity of data manipulation and the infrequent usage (a few times per year), it was deemed unnecessary to invest significant time in developing a full-fledged web interface.
-
-Furthermore, the complexity of data analysis targets users who are not experienced with SQL, necessitating the development of a separate "language" to facilitate desired data cross-referencing.
-
-So, in conclusion the new ultimate goal is to accumulate SQL scripts over time, enabling users to catalog and execute them through a web interface.
+- 🏢 The Web-Scrapping part, that will scrap the data from the website and store it in a database. (`CrilScrapper/`)
+- 🗒️ A **Jupyter Python SQL** Playbook that contains the full analysis of the data. (`playbook.ipynb`)
+- 💻 An interface to interact with the scrapper and make all the complex setup seamless. (`CrilStatsFusion/`) - IN PROGRESS
 
 ## Table of Contents
 
-- [Web-Scrapping for the Cril Reservations website](#web-scrapping-for-the-cril-reservations-website)
-  - [Introduction](#introduction)
-  - [Table of Contents](#table-of-contents)
-  - [Web-Scrapping for the Cril Reservations website](#web-scrapping-for-the-cril-reservations-website)
-    - [Fetched URLs](#fetched-urls)
-      - [Liste des activités / Activities list](#liste-des-activités--activities-list)
-      - [Liste des coachings / Coachings list](#liste-des-coachings--coachings-list)
-      - [Suivi de présence / Attendance tracking](#suivi-de-présence--attendance-tracking)
-    - [Data](#data)
-      - [Slots](#slots)
-      - [Student Attendance](#student-attendance)
-  - [Database](#database)
-  - [Server](#server)
-  - [Frontend](#frontend)
+## Cril Scrapper - Web Scrapping
 
-## Web-Scrapping for the Cril Reservations website
+The Cril Scrapper allow to fetch data from the ResaCril website and store the data in either **Json file**, **CSV file** or **PostgreSQL database**.
 
 ### Fetched URLs
 
-#### Liste des activités / Activities list
+| Title               | URL                     | Description                                       |
+| ------------------- | ----------------------- | ------------------------------------------------- |
+| Activities List     | `listeActivite/{month}` | Fetch the list of activities for a specific month |
+| Coachings List      | `listeCoaching/{month}` | Fetch the list of coachings for a specific month  |
+| Attendance Tracking | `suiviPresence/{date}`  | Fetch the attendance tracking for a specific date |
 
-La liste des activités est récupérée à partir de l'URL : listeActivite/{int(month + 1)}
+### Data fetched - Format
 
-#### Liste des coachings / Coachings list
-
-La liste des coachings est récupérée à partir de l'URL : listeCoaching/{int(month + 1)}
-
-#### Suivi de présence / Attendance tracking
-
-Le suivi de présence est récupéré à partir de l'URL : suiviPresence/{base64(DD/MM/YYYY)}
-
-### Data
+The scrapper fetches two types of data: **Slots** and **Student Attendance**.
 
 #### Slots
+
+The slots are the main object scrapped containing the information about all the slots offered by the ResaCril website.
 
 ```json
 {
@@ -96,32 +81,28 @@ We can later extract the student information, making it unique, and the link bet
 The `annee` and `dpt` fields are a single field that I split into two fields in the code to make it more readable.
 Example: `BUT 1A CHIMIE` is split into `annee: "1", dpt: "CHIMIE"`
 
-List of "specials" departments that needed to be hardcoded in the code:
-![Weird DPT](res/weird_dpt.png)
-
-_Plus: GEA REO Local, that are a "reorientation", as a 1st year student._
-
 ## Database
 
-The database is a PostgreSQL database, and the schema looks like this:
+The database that receives the data is a PostgreSQL database. The database schema is the following:
 
 ```sql
 CREATE TABLE Slot(
-   id VARCHAR(50) PRIMARY KEY,
+   slot_id VARCHAR(50) PRIMARY KEY,
    title VARCHAR(255),
    start_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
    end_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-   type SMALLINT NOT NULL,
+   type VARCHAR(125) NOT NULL,
    langue VARCHAR(125),
-   niveau SMALLINT,
+   niveau VARCHAR(125),
    dist BOOLEAN,
    lieu VARCHAR(255),
-   seats INT,
-   hidden BOOLEAN,
+   seats INT NOT NULL,
+   insc INT NOT NULL, -- Redundant with the Register table, but useful for performance
+   hidden BOOLEAN NOT NULL
 );
 
 CREATE TABLE Student(
-   id VARCHAR(50) PRIMARY KEY,
+   student_id VARCHAR(50) PRIMARY KEY,
    nom VARCHAR(255) NOT NULL,
    prenom VARCHAR(255),
    annee VARCHAR(2),
@@ -130,44 +111,32 @@ CREATE TABLE Student(
 );
 
 CREATE TABLE Register(
-   id VARCHAR(50),
-   id_1 VARCHAR(50),
-   presence VARCHAR(155),
-   PRIMARY KEY(id, id_1),
-   FOREIGN KEY(id) REFERENCES Slot(id),
-   FOREIGN KEY(id_1) REFERENCES Student(id)
+   sl_id VARCHAR(50) NOT NULL,
+   st_id VARCHAR(50) NOT NULL,
+   presence VARCHAR(155) NOT NULL,
+   PRIMARY KEY(sl_id, st_id),
+   FOREIGN KEY(sl_id) REFERENCES Slot(slot_id),
+   FOREIGN KEY(st_id) REFERENCES Student(student_id)
 );
 ```
 
-Everything is dockerized, and the database is created using the `docker-compose.yml` file.
+## Playbook
 
-![MCD](database/MCD.png)
+The playbook is a Jupyter Notebook that contains the full analysis of the data. Go check the `playbook.ipynb` file to see the full analysis.
 
-```bash
-# Copy the database schema to the entity folder
-typeorm-model-generator -h localhost -d crilstats -u postgres -x postgres -e postgres -o ./entities
-```
+A full launched and exported playbook is available in the `playbook.html` file !
 
-## Server
+The special thing about this playbook is that it is **scalable** and **reusable** as it uses Python/SQL to interact with the database and make the analysis from it. It allows to put the focus on writing the SQL directly instead of writing Python code to interact to make the relationship between the data.
 
-The server is a basic Express server that aims to provide a basic interface to interact with the database. It is not the main goal of the project, to make something too difficult, complex or secure while it's meant to be used locally.
+## CrilStatsFusion
 
-## Frontend
+The CrilStatsFusion is an interface that allows to interact with the scrapper and make all the complex setup seamless.
+WORK IN PROGRESS
 
-The frontend will be a simple React application that will allow users to execute SQL scripts on the database. The scripts will be stored in the database, and the user will be able to execute them through the web interface and then see the results either as a table or a different type of visualization predefined in the script.
+## Docker
 
-## Installation
+The whole project is dockerized, and you can run the project with the following command:
 
 ```bash
-# Clone the repository
-git clone
-
-# Create the .env file based on the .env.example and then edit it
-cp .env.example .env
-
-# Run the docker-compose
 docker-compose up -d
-
-# More incoming later
-...
 ```

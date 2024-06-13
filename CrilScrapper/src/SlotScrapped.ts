@@ -23,6 +23,11 @@ export default class Slot {
   public inscrits: { nom: string; prenom: string }[];
   public hidden: boolean = false;
 
+  /**
+   * Class method to convert a string to a SlotType
+   * @param event - The string to convert
+   * @returns a SlotType object
+   */
   public static stringToSlotType(event: string): SlotType {
     const slotType: SlotType = {
       title: Slot.getTitle(event),

@@ -2,12 +2,14 @@ import puppeteer, { Browser, Page } from "puppeteer";
 
 const ARGS = ["--no-sandbox", "--disable-setuid-sandbox"];
 
-const URL_ACTIVITE = process.env.URL_ACTIVITE as string;
-const URL_COACHING = process.env.URL_COACHING as string;
-const URL_ATTENDANCE = process.env.URL_ATTENDANCE as string;
-const EXECUTABLE_PATH = process.env.GOOGLE_EXECUTABLE_PATH as string;
-const LOGIN = process.env.LOGIN as string;
-const PASSWORD = process.env.PASSWORD as string;
+import {
+  URL_ACTIVITE,
+  URL_COACHING,
+  URL_ATTENDANCE,
+  EXECUTABLE_PATH,
+  LOGIN,
+  PASSWORD,
+} from "./env";
 
 const AUTHENTIFICATION_PORTAL = "Authentication portal";
 
